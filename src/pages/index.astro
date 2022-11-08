@@ -133,15 +133,12 @@ function generateAnalogousGradient(color: HslaColor) {
   return {
     backgroundColor: `hsl(${h} ${(s + 100) % 100}% ${(l + 100) % 100}%)`,
     backgroundImage: Array.from({ length }).map((_, i) => {
-      // const h1 = h + (80 * (i + 1)) / length - 40;
       const h1 = h - 120 * (1 - 2 * (i % 2));
       const s1 = s + (random() - 0.5) * 20;
       const l1 = Math.max(75, l) - i * (1 - 2 * (i % 2)) * 1.75;
-      // const l1 = l + random() * 20;
 
       return createRadialGradient(
         { h: h1, s: s1, l: l1 },
-        // randomPosition(),
         `${Math.round((random() * (i * 100)) % 100)}% ${Math.round(
           (random() * (i * 10 * 100)) % 100
         )}%`,
@@ -198,7 +195,8 @@ function generateAnalogousGradient(color: HslaColor) {
               <div
                 class="absolute left-[8px] top-0 w-[calc(100%_-_8px)] h-full"
                 style={generateAnalogousGradient(color)}
-              accesskey=""/>
+                accesskey=""
+              />
             </div>
           );
         })

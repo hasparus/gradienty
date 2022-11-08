@@ -36,7 +36,7 @@ function randomPosition() {
   return `${x}% ${y}%`;
 }
 
-function blend(...colors: HslaColor[]): HslaColor {
+function blend(colors: HslaColor[]): HslaColor {
   let h: number = colors[0]!.h;
   let s: number = colors[0]!.s;
   let l: number = colors[0]!.l;
@@ -75,7 +75,7 @@ function generateTriColorGradient(
   color3: HslaColor
 ) {
   const colors = [color1, color2, color3];
-  const { h, s, l } = blend(...colors);
+  const { h, s, l } = blend(colors);
 
   const positions = [
     `${random() * 15}% ${random() * 20}%`,
@@ -130,15 +130,20 @@ function generateAnalogousGradient(color: HslaColor) {
 
   const length = 5 + Math.floor(random() * 20);
 
-  return {
-    backgroundColor: `hsl(${h} ${(s + 100) % 100}% ${(l + 100) % 100}%)`,
-    backgroundImage: Array.from({ length }).map((_, i) => {
-      const h1 = h - 120 * (1 - 2 * (i % 2));
-      const s1 = s + (random() - 0.5) * 20;
-      const l1 = Math.max(75, l) - i * (1 - 2 * (i % 2)) * 1.75;
+  const colors = Array.from({ length }).map((_, i) => {
+    return {
+      h: h - 120 * (1 - 2 * (i % 2)),
+      s: s + (random() - 0.5) * 20,
+      l: Math.max(75, l) - i * (1 - 2 * (i % 2)) * 1.75,
+    };
+  });
 
+  return {
+    blendedColor: blend(colors),
+    backgroundColor: `hsl(${h} ${(s + 100) % 100}% ${(l + 100) % 100}%)`,
+    backgroundImage: colors.map((color, i) => {
       return createRadialGradient(
-        { h: h1, s: s1, l: l1 },
+        color,
         `${Math.round((random() * (i * 100)) % 100)}% ${Math.round(
           (random() * (i * 10 * 100)) % 100
         )}%`,
@@ -189,13 +194,15 @@ function generateAnalogousGradient(color: HslaColor) {
         })
       }
       {
-        colors.map((color, i) => {
+        colors.map((color) => {
+          const { backgroundColor, backgroundImage } =
+            generateAnalogousGradient(color);
+
           return (
-            <div class="w-full h-0 pt-[100%] relative">
+            <div class="w-full h-0 pt-[100%] relative" style={bgColor(color)}>
               <div
                 class="absolute left-[8px] top-0 w-[calc(100%_-_8px)] h-full"
-                style={generateAnalogousGradient(color)}
-                accesskey=""
+                style={{ backgroundColor, backgroundImage }}
               />
             </div>
           );
@@ -203,12 +210,16 @@ function generateAnalogousGradient(color: HslaColor) {
       }
       {
         colors.map((color, i) => {
+          const { backgroundColor, backgroundImage } =
+            generateAnalogousGradient(color);
+
           return (
             <div class="w-full h-0 pt-[100%] relative">
               <div
                 class="absolute left-[8px] top-0 w-[calc(100%_-_8px)] h-full flex justify-center items-center border border-gray-800"
                 style={{
-                  ...generateAnalogousGradient(color),
+                  backgroundColor,
+                  backgroundImage,
                   backgroundClip: "text",
                   WebkitBackgroundClip: "text",
                   color: "transparent",
